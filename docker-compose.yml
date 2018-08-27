@@ -1,0 +1,54 @@
+version: '2'
+
+services:
+  
+  run-script:
+    build:
+      context: .
+      dockerfile: ./compose/Dockerfile
+    image: gcr.io/spins-retail-solutions/bogleheads-webscraper:run-script
+    volumes:
+      - ~/.config/gcloud:/root/.config/gcloud
+      - ./project:/project
+      - ./requirements:/requirements
+    env_file: 
+      - envs/live
+
+  ipython-shell:
+    build:
+      context: .
+      dockerfile: ./compose/Dockerfile-dev
+    image: gcr.io/spins-retail-solutions/bogleheads-webscraper:ipython-shell
+    volumes_from:
+      - run-script
+    env_file: 
+      - envs/live
+    working_dir: /project/src
+    command: ipython
+
+  encrypt-secrets:
+    build:
+      context: .
+      dockerfile: ./compose/Dockerfile
+    image: gcr.io/spins-retail-solutions/bogleheads-webscraper:run-script
+    volumes:
+      - ~/.config/gcloud:/root/.config/gcloud
+      - ./secrets:/secrets
+    env_file:
+      - envs/live
+    entrypoint: bash
+    command: /scripts/encrypt-secrets.sh
+
+  jupyter-notebook:
+    build:
+      context: .
+      dockerfile: ./compose/Dockerfile-dev
+    image: gcr.io/spins-retail-solutions/bogleheads-webscraper:jupyter-notebook
+    volumes_from:
+      - ipython-shell
+    env_file: 
+      - envs/live
+    working_dir: /project/notebooks
+    command: jupyter notebook --no-browser --ip=0.0.0.0 --allow-root 
+    ports:
+      - "8888:8888"

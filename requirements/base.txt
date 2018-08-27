@@ -1,0 +1,6 @@
+git+https://github.com/bmritz/bbscraper.git
+requests
+beautifulsoup4>=4.4.0
+pandas
+matplotlib
+seaborn

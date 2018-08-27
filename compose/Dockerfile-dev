@@ -1,0 +1,5 @@
+FROM gcr.io/spins-retail-solutions/bogleheads-webscraper:run-script
+
+# install requirements
+RUN /env/bin/pip install --upgrade pip && \
+    /env/bin/pip install -r /requirements/dev.txt
